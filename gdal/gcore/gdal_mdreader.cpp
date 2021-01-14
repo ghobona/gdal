@@ -651,7 +651,6 @@ char ** GDALLoadRPCFile( const CPLString& soFilePath )
 /************************************************************************/
 
 CPLErr GDALWriteRPCSensorMLFile( const char *pszFilename, char **papszMD )
-
 {
   CPLString osRPCFilename = pszFilename;
   CPLString soPt(".");
