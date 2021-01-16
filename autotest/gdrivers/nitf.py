@@ -2278,7 +2278,8 @@ def test_nitf_72():
 
     assert gdal.VSIStatL('/vsimem/out_rpc_RPC_SML.xml') is not None, \
         'fail: xml file was expected'
-    gdal.Unlink('/vsimem/out_rpc_RPC_SML.xml')        
+    gdal.Unlink('/vsimem/out_rpc_RPC_SML.xml')
+    gdal.GetDriverByName('NITF').Delete('/vsimem/out_rpc.ntf')        
 
     # Test RPCTXT creation option
     with gdaltest.error_handler():
