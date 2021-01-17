@@ -1316,7 +1316,7 @@ def test_nitf_48():
     except OSError:
         pass
 
-    
+
 ###############################################################################
 # Test TEXT and CGM creation options with CreateCopy() (#3376)
 
@@ -1451,7 +1451,7 @@ def test_nitf_51():
                     print('xsize = %d, nbpp = %d' % (xsize, nbpp))
                     pytest.fail('did not get expected data')
 
-    
+
 ###############################################################################
 # Test reading GeoSDE TREs
 
@@ -1582,7 +1582,7 @@ def test_nitf_57():
         print(gt)
         return
 
-    
+
 ###############################################################################
 # Test reading STDIDC
 
@@ -1696,7 +1696,7 @@ def test_nitf_60():
     for i in range(6):
         assert gt[i] == pytest.approx(ref_gt[i], abs=1e-6), 'did not get expected geotransform'
 
-    
+
 ###############################################################################
 # Test reading TRE from DE segment
 
@@ -1735,7 +1735,7 @@ def test_nitf_62():
         print("'%s'" % got_comments)
         pytest.fail('did not get expected comments')
 
-    
+
 ###############################################################################
 # Test NITFReadImageLine() and NITFWriteImageLine() when nCols < nBlockWidth (#3551)
 
@@ -2064,7 +2064,7 @@ def compare_rpc(src_md, md):
         elif float(src_md[key]) != float(md[key]):
             print(md)
             pytest.fail('fail: %s value is not the one expected' % key)
-    
+
 
 def test_nitf_72():
 
@@ -2325,13 +2325,61 @@ def test_nitf_72():
 ###############################################################################
 # Test case for https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=1525
 
+# Start Test RPC_SENSORML creation option
+
+    print("RPC Check 1")
+
+    ds = None
+
+    src_ds = gdal.GetDriverByName('MEM').Create('', 1, 1)
+    # Use full precision
+    src_md_max_precision = {
+        'ERR_BIAS': '1234.56',
+        'ERR_RAND': '2345.67',
+        'LINE_OFF': '345678',
+        'SAMP_OFF': '45678',
+        'LAT_OFF': '-89.8765',
+        'LONG_OFF': '-179.1234',
+        'HEIGHT_OFF': '-9876',
+        'LINE_SCALE': '987654',
+        'SAMP_SCALE': '67890',
+        'LAT_SCALE': '-12.3456',
+        'LONG_SCALE': '-123.4567',
+        'HEIGHT_SCALE': '-1234',
+        'LINE_NUM_COEFF': '0 9.876543e+9 9.876543e-9 -9.876543e+9 -9.876543e-9 0 9.876543e+9 9.876543e-9 -9.876543e+9 -9.876543e-9 0 9.876543e+9 9.876543e-9 -9.876543e+9 -9.876543e-9 0 9.876543e+9 9.876543e-9 -9.876543e+9 -9.876543e-9',
+        'LINE_DEN_COEFF': '1 9.876543e+9 9.876543e-9 -9.876543e+9 -9.876543e-9 0 9.876543e+9 9.876543e-9 -9.876543e+9 -9.876543e-9 0 9.876543e+9 9.876543e-9 -9.876543e+9 -9.876543e-9 0 9.876543e+9 9.876543e-9 -9.876543e+9 -9.876543e-9',
+        'SAMP_NUM_COEFF': '2 9.876543e+9 9.876543e-9 -9.876543e+9 -9.876543e-9 0 9.876543e+9 9.876543e-9 -9.876543e+9 -9.876543e-9 0 9.876543e+9 9.876543e-9 -9.876543e+9 -9.876543e-9 0 9.876543e+9 9.876543e-9 -9.876543e+9 -9.876543e-9',
+        'SAMP_DEN_COEFF': '3 9.876543e+9 9.876543e-9 -9.876543e+9 -9.876543e-9 0 9.876543e+9 9.876543e-9 -9.876543e+9 -9.876543e-9 0 9.876543e+9 9.876543e-9 -9.876543e+9 -9.876543e-9 0 9.876543e+9 9.876543e-9 -9.876543e+9 -9.876543e-9',
+    }
+
+    print("RPC Check 2")
+
+    src_md = src_md_max_precision
+    src_ds.SetMetadata(src_md, 'RPC')
+
+    print("RPC Check 3")
+
+
+    print("RPC Check 4")
+    gdal.GetDriverByName('NITF').CreateCopy('/vsimem/out_rpc.ntf', src_ds, options=['RPC_SENSORML=YES'])
+
+    print("RPC Check 5")
+
+    assert gdal.VSIStatL('/vsimem/out_rpc_RPC_SML.xml') is not None, \
+        'fail: xml file was expected'
+    print("RPC Check 6")
+    ds = None
+
+    # End Test RPC_SENSORML creation option
+
+
 
 def test_nitf_73():
 
     with gdaltest.error_handler():
         gdal.Open('data/nitf/oss_fuzz_1525.ntf')
 
-    
+
 ###############################################################################
 # Test cases for CCLSTA
 #  - Simple case
@@ -2372,10 +2420,10 @@ def test_nitf_74():
 def test_nitf_75():
 
     listing_AG1 = """<?xml version="1.0" encoding="UTF-8"?>
-<genc:GeopoliticalEntityEntry 
-    xmlns:genc="http://api.nsgreg.nga.mil/schema/genc/3.0" 
-    xmlns:genc-cmn="http://api.nsgreg.nga.mil/schema/genc/3.0/genc-cmn" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+<genc:GeopoliticalEntityEntry
+    xmlns:genc="http://api.nsgreg.nga.mil/schema/genc/3.0"
+    xmlns:genc-cmn="http://api.nsgreg.nga.mil/schema/genc/3.0/genc-cmn"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://api.nsgreg.nga.mil/schema/genc/3.0 http://api.nsgreg.nga.mil/schema/genc/3.0.0/genc.xsd">
     <genc:encoding>
         <genc-cmn:char3Code>MMR</genc-cmn:char3Code>
@@ -2470,10 +2518,10 @@ def test_nitf_75():
         <field name="DETAIL_LEN" value="04108" />
         <field name="DETAIL_CMPR" value="" />
         <field name="DETAIL" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;genc:GeopoliticalEntityEntry 
-    xmlns:genc=&quot;http://api.nsgreg.nga.mil/schema/genc/3.0&quot; 
-    xmlns:genc-cmn=&quot;http://api.nsgreg.nga.mil/schema/genc/3.0/genc-cmn&quot; 
-    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; 
+&lt;genc:GeopoliticalEntityEntry
+    xmlns:genc=&quot;http://api.nsgreg.nga.mil/schema/genc/3.0&quot;
+    xmlns:genc-cmn=&quot;http://api.nsgreg.nga.mil/schema/genc/3.0/genc-cmn&quot;
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
     xsi:schemaLocation=&quot;http://api.nsgreg.nga.mil/schema/genc/3.0 http://api.nsgreg.nga.mil/schema/genc/3.0.0/genc.xsd&quot;&gt;
     &lt;genc:encoding&gt;
         &lt;genc-cmn:char3Code&gt;MMR&lt;/genc-cmn:char3Code&gt;
@@ -3118,7 +3166,7 @@ def test_nitf_87():
         hex_string("GEOD") + \
         bit_mask + hex_string("00120050407072410+33.234974+044.333405+27.8100000E+0132.8+54.9167.5+52.5") + \
         hex_string("-163.4004099.2+84.0")
-               
+
     ds = gdal.GetDriverByName('NITF').Create('/vsimem/nitf_87.ntf', 1, 1, options=[tre_data])
     ds = None
 
@@ -3183,7 +3231,7 @@ def test_nitf_87():
 def test_nitf_88():
     tre_data = "TRE=CSWRPB=1F199.9999999900000010000002000000300000040000005000000600000070000008" \
                "1111-9.99999999999999E-99+9.99999999999999E+9900000"
-               
+
     ds = gdal.GetDriverByName('NITF').Create('/vsimem/nitf_88.ntf', 1, 1, options=[tre_data])
     ds = None
 
@@ -3244,7 +3292,7 @@ def test_nitf_88():
 
 def test_nitf_89():
     tre_data = "TRE=CSRLSB=0101+11111111.11-22222222.22+33333333.33-44444444.44"
-               
+
     ds = gdal.GetDriverByName('NITF').Create('/vsimem/nitf_89.ntf', 1, 1, options=[tre_data])
     ds = None
 
@@ -3966,7 +4014,7 @@ def test_nitf_online_7():
                                      % filename)
         ds = None
 
-    
+
 ###############################################################################
 # Test JPEG-compressed multi-block mono-band image with a data mask subheader (IC=M3, IMODE=B)
 
@@ -4043,7 +4091,7 @@ def test_nitf_online_10():
     for item in tab:
         assert mdCGM[item[0]] == item[1], ('wrong value for %s.' % item[0])
 
-    
+
 ###############################################################################
 # 5 text files
 
@@ -4161,7 +4209,7 @@ def test_nitf_online_14(not_jpeg_9b):
     except OSError:
         pass
 
-    
+
 ###############################################################################
 # Test opening a IC=C8 NITF file with the various JPEG2000 drivers
 
@@ -4490,7 +4538,7 @@ def test_nitf_online_22():
         assert md[item[0]] == item[1], ('(4) wrong value for %s, got %s instead of %s.'
                                  % (item[0], md[item[0]], item[1]))
 
-    
+
 ###############################################################################
 # Test reading a M4 compressed file (fixed for #3848)
 
